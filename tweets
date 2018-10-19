@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'commander/import'
+require_relative 'services/tweets'
+
+using Rainbow
+
+program :name, 'tweets'
+program :version, '0.0.1'
+program :description, 'Reads urls from tweets'
+
+command :get do |c|
+  c.syntax = 'tweets get [options]'
+  c.summary = 'main (and only) loader'
+  c.description = 'just run it'
+  c.option '--since DATE', 'Specify date since when you want to get tweets - for free twitter pan it\'s limited to 7 days'
+  c.option '--until DATE', 'Specify date until when you want to get tweets'
+  
+  c.action do |args, options|
+    Services::Tweets.get(filter_since: options.since, filter_until: options.until).each do |item|
+      say item.to_s
+    end
+  rescue Services::IncorrectDatesError => e
+    say e.to_s
+  end
+end
+
