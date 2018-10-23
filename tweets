@@ -3,6 +3,7 @@
 require 'rubygems'
 require 'commander/import'
 require_relative 'services/tweets'
+require 'dotenv/load'
 
 using Rainbow
 
@@ -18,7 +19,14 @@ command :get do |c|
   c.option '--until DATE', 'Specify date until when you want to get tweets'
   
   c.action do |args, options|
-    Services::Tweets.get(filter_since: options.since, filter_until: options.until).each do |item|
+    Services::Tweets.get(
+      filter_since: options.since,
+      filter_until: options.until,
+      consumer_key: ENV['TWITTER_CONSUMER_KEY'],
+      consumer_secret: ENV['TWITTER_CONSUMER_SECRET'],
+      access_token: ENV['TWITTER_ACCESS_TOKEN'],
+      access_token_secret: ENV['TWITTER_ACCESS_TOKEN_SECRET'],
+    ).each do |item|
       say item.to_s
     end
   rescue Services::IncorrectDatesError => e

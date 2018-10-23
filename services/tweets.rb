@@ -1,5 +1,4 @@
 require 'twitter'
-require 'dotenv/load'
 require 'rainbow/refinement'
 require 'date'
 
@@ -71,23 +70,27 @@ module Services
   end
 
   class Tweets
-    attr_reader :filter_since, :filter_until
+    attr_reader :filter_since, :filter_until, :consumer_key, :consumer_secret, :access_token, :access_token_secret
 
     VALID_DATE_REGEXP = /\A\d{4}-\d{2}-\d{2}\z/
 
-    def initialize(filter_since: nil, filter_until: nil)
+    def initialize(filter_since: nil, filter_until: nil, consumer_key: nil, consumer_secret: nil, access_token: nil, access_token_secret: nil)
       @filter_since = filter_since
       @filter_until = filter_until
+      @consumer_key = consumer_key
+      @consumer_secret = consumer_secret
+      @access_token = access_token
+      @access_token_secret = access_token_secret
       validate_dates
     end
 
-    def self.get(filter_since: nil, filter_until: nil)
-      self.new(filter_since: filter_since, filter_until: filter_until).get
+    def self.get(opts)
+      self.new(opts).get
     end
 
     def get
       friends_screen_names.map do |screen_name|
-        FriendUrls.new(screen_name, client.search('', from: screen_name, since: filter_since, until: filter_until))
+        FriendUrls.new(screen_name, friend_tweets(screen_name))
       end
     end
 
@@ -109,16 +112,20 @@ module Services
       @friends ||= client.friends
     end
 
+    def friend_tweets(screen_name)
+      client.search('', from: screen_name, since: filter_since, until: filter_until)
+    end
+
     def friends_screen_names
       friends.map(&:screen_name)
     end
 
     def client
       @client ||= ::Twitter::REST::Client.new do |config|
-        config.consumer_key        = ENV['TWITTER_CONSUMER_KEY']
-        config.consumer_secret     = ENV['TWITTER_CONSUMER_SECRET']
-        config.access_token        = ENV['TWITTER_ACCESS_TOKEN']
-        config.access_token_secret = ENV['TWITTER_ACCESS_TOKEN_SECRET']
+        config.consumer_key        = consumer_key || 'dummy_one_so_vcr_wont_panic'
+        config.consumer_secret     = consumer_secret || 'dummy_one_so_vcr_wont_panic'
+        config.access_token        = access_token || 'dummy_one_so_vcr_wont_panic'
+        config.access_token_secret = access_token_secret || 'dummy_one_so_vcr_wont_panic'
       end
     end
   end

@@ -6,3 +6,8 @@ source "https://rubygems.org"
 gem 'twitter'
 gem 'dotenv'
 gem 'rainbow'
+
+
+gem 'rspec'
+gem 'vcr'
+gem 'webmock'

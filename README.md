@@ -34,3 +34,10 @@ Reads all tweets between given date - MUST be in YYYY-MM-DD format
 ```
 > ./tweets get --since YYYY-MM-DD --until YYYY-MM-DD
 ```
+
+
+### Tests
+
+```
+rspec
+```
